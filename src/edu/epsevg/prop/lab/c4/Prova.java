@@ -16,8 +16,6 @@ public class Prova {
         t.afegeix(7, +1);
         t.afegeix(1, -1);
         t.pintaTaulerALaConsola();
- 
-        
     }
 }
 /*
