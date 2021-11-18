@@ -39,7 +39,7 @@ public class Tulanecta
         this.color = color;
         int depth = profundidad;
         try {
-            Thread.sleep((long)2000);
+            Thread.sleep((long)500);
         } catch (InterruptedException ex) {
             Logger.getLogger(Tulanecta.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -77,19 +77,14 @@ public class Tulanecta
             for (int i = 0; i < t.getMida(); i++) {
                 if (t.movpossible(i)) {
                     Tauler aux = new Tauler(t);
+                    aux.afegeix(i, auxColor);
                     if (aux.solucio(i, auxColor)) {
-                        if (auxColor == this.color) {
-                            heur = Integer.MAX_VALUE;
-                        }
-                        else {
-                            heur = Integer.MIN_VALUE;
-                        }
+                        heur = Integer.MAX_VALUE;
                     }
-                    else {
-                        aux.afegeix(i, auxColor);
+                    else{
                         int eval = minimaxSinAlfaBeta(aux, profundidad - 1, false);
                         heur = Math.max(eval, heur);
-                    }
+                    }  
                 }
             }
         } else {
@@ -98,8 +93,13 @@ public class Tulanecta
                 if (t.movpossible(i)) {
                     Tauler aux = new Tauler(t);
                     aux.afegeix(i, auxColor);
-                    int eval = minimaxSinAlfaBeta(aux, profundidad - 1, true);
-                    heur = Math.min(eval, heur);
+                    if (aux.solucio(i, auxColor)) {
+                        heur = Integer.MIN_VALUE;
+                    }
+                    else{
+                        int eval = minimaxSinAlfaBeta(aux, profundidad - 1, true);
+                        heur = Math.min(eval, heur);
+                    }
                 }
             }
         }
@@ -137,11 +137,11 @@ public class Tulanecta
             for (int i = 0; i < t.getMida(); i++) {
                 if (t.movpossible(i)) {
                     Tauler aux = new Tauler(t);
+                    aux.afegeix(i, auxColor);
                     if (aux.solucio(i, auxColor)) {
                         nuevaAlfa = Integer.MAX_VALUE;
                     }
                     else {
-                        aux.afegeix(i, auxColor);
                         nuevaAlfa = Math.max(nuevaAlfa, minimax(aux, profundidad - 1, alfa, beta, false));
                         alfa = Math.max(nuevaAlfa, alfa);
                         if (alfa >= beta) {
@@ -156,11 +156,11 @@ public class Tulanecta
             for (int i = 0; i < t.getMida(); i++) {
                 if (t.movpossible(i)) {
                     Tauler aux = new Tauler(t);
+                    aux.afegeix(i, auxColor);
                     if (aux.solucio(i, auxColor)) {
                         nuevaBeta = Integer.MIN_VALUE;
                     }
                     else {
-                        aux.afegeix(i, auxColor);
                         nuevaBeta = Math.min(nuevaBeta, minimax(aux, profundidad - 1, alfa, beta, true));
                         beta = Math.min(nuevaBeta, beta);
                         if (alfa >= beta) {
