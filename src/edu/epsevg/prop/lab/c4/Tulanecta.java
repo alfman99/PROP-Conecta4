@@ -38,12 +38,13 @@ public class Tulanecta
     public int moviment(Tauler t, int color) {
         this.color = color;
         int depth = profundidad;
+        int eleccion = obtenerCol(t, depth);
         try {
-            Thread.sleep((long)500);
+            Thread.sleep((long)1000);
         } catch (InterruptedException ex) {
             Logger.getLogger(Tulanecta.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return obtenerCol(t, depth);
+        return eleccion;
     }
     
     private int obtenerColSinAlfaBeta(Tauler t, int auxProfundidad) {
@@ -114,19 +115,23 @@ public class Tulanecta
             if (t.movpossible(i)) {
                 Tauler aux = new Tauler(t);
                 aux.afegeix(i, this.color);
-                int alfa = minimax(aux, auxProfundidad - 1, mejorHeur, Integer.MAX_VALUE , false);
-                if (alfa > mejorHeur || mejorJugada == -1) {
-                    mejorJugada = i;
-                    mejorHeur = alfa;
+                if (aux.solucio(i, this.color)) {
+                    return Integer.MAX_VALUE;
                 }
+                else {
+                    int alfa = minimax(aux, auxProfundidad - 1, mejorHeur, Integer.MAX_VALUE , false);
+                    if (alfa > mejorHeur || mejorJugada == -1) {
+                        mejorJugada = i;
+                        mejorHeur = alfa;
+                    }
+                }
+                
             }
         }
         return mejorJugada;
     }
     
     private int minimax(Tauler t, int profundidad, int alfa, int beta, boolean isMax) {
-        int otherColor = this.color == 1 ? -1 : 1;
-        int auxColor = isMax ? this.color : otherColor;
         
         if (profundidad <= 0) {
             return heur(t);
@@ -137,9 +142,9 @@ public class Tulanecta
             for (int i = 0; i < t.getMida(); i++) {
                 if (t.movpossible(i)) {
                     Tauler aux = new Tauler(t);
-                    aux.afegeix(i, auxColor);
-                    if (aux.solucio(i, auxColor)) {
-                        nuevaAlfa = Integer.MAX_VALUE;
+                    aux.afegeix(i, this.color);
+                    if (aux.solucio(i, this.color)) {
+                        return Integer.MAX_VALUE;
                     }
                     else {
                         nuevaAlfa = Math.max(nuevaAlfa, minimax(aux, profundidad - 1, alfa, beta, false));
@@ -156,9 +161,9 @@ public class Tulanecta
             for (int i = 0; i < t.getMida(); i++) {
                 if (t.movpossible(i)) {
                     Tauler aux = new Tauler(t);
-                    aux.afegeix(i, auxColor);
-                    if (aux.solucio(i, auxColor)) {
-                        nuevaBeta = Integer.MIN_VALUE;
+                    aux.afegeix(i, this.color*-1);
+                    if (aux.solucio(i, this.color*-1)) {
+                        return Integer.MIN_VALUE;
                     }
                     else {
                         nuevaBeta = Math.min(nuevaBeta, minimax(aux, profundidad - 1, alfa, beta, true));
@@ -173,34 +178,67 @@ public class Tulanecta
         }
     }
 
-    private int largo (Tauler t, int i, int j, int direccionX, int direccionY) {
+    private int largo (Tauler t, int i, int j, int direccionX, int direccionY, int color) {
         int size = t.getMida();
-        int newX = i+direccionX;
-        int newY = j+direccionY;
-        if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
-            return 0;
+        int score = 0;
+        for (int k = 0; k < 4; k++) {
+            i += direccionX;
+            j += direccionY;
+            if (i < 0 || i >= size || j < 0 || j >= size) {
+                return -4;
+            }
+            int colorPos = t.getColor(i, j);
+            if (color == colorPos) {
+                score += 2;
+            }
+            else if (color != colorPos && colorPos != 0) {
+                return -8;
+            }
         }
-        if (t.getColor(i+direccionX, j+direccionY) == this.color) {
-            return 1 + largo(t, newX, newY, direccionX, direccionY);
+        /*if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
+            return -4;
+        }
+        if (t.getColor(i+direccionX, j+direccionY) == color || t.getColor(i+direccionX, j+direccionY) == 0) {
+            int sum = 1;
+            if (t.getColor(i+direccionX, j+direccionY) == 0) {
+                sum = 0;
+            }
+            return sum + largo(t, newX, newY, direccionX, direccionY, color);
         }
         else {
             return 0;
-        }
+        }*/
+        return score;
     }
     
     private int heur(Tauler t) {
         int puntos = 0;
         for (int i = 0; i < t.getMida(); i++) {
-            for (int j = t.getMida() - 1; j >= 0; j--) {
+            for (int j = 0; j < t.getMida(); j++) {
                 if (t.getColor(i, j) == this.color) {
                     for (int[] direc : direcciones) {
                         int dirX = direc[0];
                         int dirY = direc[1];
-                        int a = largo(t, i, j, dirX, dirY);
-                        if (a > 1)
+                        int a = largo(t, i, j, dirX, dirY, this.color);
+                        if (a >= 4)
+                            puntos = Integer.MAX_VALUE;
+                        else if (a > 1)
                             puntos += a*2;
                         else
                             puntos += a;
+                    }
+                }
+                else if (t.getColor(i, j) == this.color*-1) {
+                    for (int[] direc : direcciones) {
+                        int dirX = direc[0];
+                        int dirY = direc[1];
+                        int a = largo(t, i, j, dirX, dirY, this.color * -1);
+                        if (a >= 4)
+                            puntos = Integer.MIN_VALUE;
+                        else if (a > 1)
+                            puntos -= a*2;
+                        else
+                            puntos -= a*2;
                     }
                 }
             }

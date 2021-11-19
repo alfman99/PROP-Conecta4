@@ -100,7 +100,8 @@ public class Juga2 extends javax.swing.JFrame {
         Jugador p1 = new Tulanecta(8);
 
         Jugador p2 = new Profe(8,false);
-        //Jugador p2 = new Manual();
+        // Jugador p2 = new Aleatori();
+        // Jugador p2 = new Manual();
 
         boolean autoMode = true;
         final Juga2 j = new Juga2(p1, p2, autoMode);
