@@ -75,7 +75,7 @@ public class Tulanecta
      * 
      * @see minimaxSinAlfaBeta(Tauler t, int profundidad, boolean isMax)
      */
-    private int obtenerColSinAlfaBeta(Tauler t, int auxProfundidad) {
+    protected int obtenerColSinAlfaBeta(Tauler t, int auxProfundidad) {
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
         for (int i = 0; i < t.getMida(); i++) {
@@ -108,7 +108,7 @@ public class Tulanecta
      * @return heur que es la heurística de la jugada actual. 
      * 
      */
-    private int minimaxSinAlfaBeta(Tauler t, int profundidad, boolean isMax) {
+    protected int minimaxSinAlfaBeta(Tauler t, int profundidad, boolean isMax) {
         int otherColor = this.color == 1 ? -1 : 1;
         int auxColor = isMax ? this.color : otherColor;
 
@@ -162,7 +162,7 @@ public class Tulanecta
      * 
      * @see obtenerCol(Tauler t, int auxProfundidad)
      */
-    private int obtenerCol(Tauler t, int auxProfundidad) {
+    protected int obtenerCol(Tauler t, int auxProfundidad) {
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
         for (int i = 0; i < t.getMida(); i++) {
@@ -199,7 +199,7 @@ public class Tulanecta
      * @return nuevaBeta, nuevaAlfa, Alfa, Beta que es la heurística que representa la jugada actual. 
      * 
      */
-    private int minimax(Tauler t, int profundidad, int alfa, int beta, boolean isMax) {
+    protected int minimax(Tauler t, int profundidad, int alfa, int beta, boolean isMax) {
         
         if (profundidad <= 0) {
             return heur(t);
@@ -249,7 +249,7 @@ public class Tulanecta
      /**
      * Posible modificaciones futuras, lo dejo para el final
      */
-    private int largo (Tauler t, int i, int j, int direccionX, int direccionY, int color) {
+    protected int largo (Tauler t, int i, int j, int direccionX, int direccionY, int color) {
         int size = t.getMida();
         int score = 0;
         for (int k = 0; k < 4; k++) {
@@ -292,7 +292,7 @@ public class Tulanecta
      * @return puntos que indica cual de buena es la jugada que se está planteando. 
      * 
      */
-    private int heur(Tauler t) {
+    protected int heur(Tauler t) {
         int puntos = 0;
         for (int i = 0; i < t.getMida(); i++) {
             for (int j = 0; j < t.getMida(); j++) {
