@@ -5,9 +5,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Jugador aleatori "Alea jacta est"
+ * Tulanecta. Actividad de PROP
  *
- * @author Profe
+ * @author Mario Konstanty Kochan Chmielik
+ * @author Alfredo Manresa Martínez
  */
 public class Tulanecta
         implements Jugador, IAuto {
@@ -18,6 +19,12 @@ public class Tulanecta
     private int[] alturas;
     private ArrayList<int[]> direcciones;
 
+    /**
+     * Metodo de inicialización del jugador "Tulanecta", donde se incializan 
+     * las variables principales para el funcionamiento de este. 
+     * 
+     * @param profundidad se le pasa la profundidad máxima a la que se jugará
+     */
     public Tulanecta(int profundidad) {
         this.nom = "Tulanecta";
         this.profundidad = profundidad;
@@ -34,6 +41,16 @@ public class Tulanecta
         direcciones.add(new int[] { 1, -1 });
     }
 
+    /**
+     * Metodo que se inicializa cada vez que nos toca elegir el movimiento. Este metodo
+     * llama a la función minimax para así obtener el mejor movimiento.
+     * 
+     * @param t es el tablero que esta actualmente en la partida.
+     * @param color es el color con el que jugamos.
+     * @return eleccion que es la eleccion que nos queda después de hacer el minimax con el heur.
+     * 
+     * @see obtenerCol(Tauler t, int auxProfundidad)
+     */
     @Override
     public int moviment(Tauler t, int color) {
         this.color = color;
@@ -47,6 +64,17 @@ public class Tulanecta
         return eleccion;
     }
     
+     /**
+     * Metodo que realiza todas las primeras tiradas del tablero T. Apartir de 
+     * estas tiradas llamamos al minimax para ver las jugadas con el Min. 
+     * Este Metodo funciona sin el alfa y el beta. 
+     * 
+     * @param t es el tablero que esta actualmente en la partida.
+     * @param auxProfundidad es la profundidad a la que estamos jugando.
+     * @return mejorJugada que es la mejor columna para tirar la ficha.
+     * 
+     * @see minimaxSinAlfaBeta(Tauler t, int profundidad, boolean isMax)
+     */
     private int obtenerColSinAlfaBeta(Tauler t, int auxProfundidad) {
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
@@ -54,16 +82,32 @@ public class Tulanecta
             if (t.movpossible(i)) {
                 Tauler aux = new Tauler(t);
                 aux.afegeix(i, this.color);
-                int eval = minimaxSinAlfaBeta(aux, auxProfundidad - 1, false);
-                if (eval > mejorHeur || mejorJugada == -1) {
-                    mejorJugada = i;
-                    mejorHeur = eval;
+                if (aux.solucio(i, this.color)) {
+                    return Integer.MAX_VALUE;
+                }
+                else{
+                    int eval = minimaxSinAlfaBeta(aux, auxProfundidad - 1, false);
+                    if (eval > mejorHeur || mejorJugada == -1) {
+                        mejorJugada = i;
+                        mejorHeur = eval;
+                    }
                 }
             }
         }
         return mejorJugada;
     }
 
+    /**
+     * Metodo que realiza el desarrollo del árbol heurístico MiniMax de forma 
+     * recursivas. Comprueva el valor máximo si isMax es verdadero y en caso
+     * contrario mira el valor mínimo.
+     * 
+     * @param t es el tablero que esta actualmente en la partida.
+     * @param profundidad es la profundidad a la que estamos jugando. 
+     * @param isMax es un flag para indicar si es Max o Min.
+     * @return heur que es la heurística de la jugada actual. 
+     * 
+     */
     private int minimaxSinAlfaBeta(Tauler t, int profundidad, boolean isMax) {
         int otherColor = this.color == 1 ? -1 : 1;
         int auxColor = isMax ? this.color : otherColor;
@@ -107,7 +151,17 @@ public class Tulanecta
 
         return heur;
     }
-    
+    /**
+     * Metodo que realiza todas las primeras tiradas del tablero T. Apartir de 
+     * estas tiradas llamamos al minimax para ver las jugadas con el Min. 
+     * Este Metodo funciona es con el alfa y el beta. 
+     * 
+     * @param t es el tablero que esta actualmente en la partida
+     * @param auxProfundidad es la profundidad a la que estamos jugando 
+     * @return mejorJugada que es la mejor columna para tirar la ficha
+     * 
+     * @see obtenerCol(Tauler t, int auxProfundidad)
+     */
     private int obtenerCol(Tauler t, int auxProfundidad) {
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
@@ -131,6 +185,20 @@ public class Tulanecta
         return mejorJugada;
     }
     
+    /**
+     * Metodo que realiza el desarrollo del árbol heurístico MiniMax de forma 
+     * recursivas. Comprueva el valor máximo si isMax es verdadero y en caso
+     * contrario mira el valor mínimo. Este lo realiza con la poda, para así 
+     * poder evitar cercar ramas innecesarias del árbol. 
+     * 
+     * @param t es el tablero que esta actualmente en la partida.
+     * @param profundidad es la profundidad a la que estamos jugando.
+     * @param alfa es el valor heurístico minimo de la poda
+     * @param beta es el valor heurístico máximo de la poda 
+     * @param isMax es un flag para indicar si es Max o Min.
+     * @return nuevaBeta, nuevaAlfa, Alfa, Beta que es la heurística que representa la jugada actual. 
+     * 
+     */
     private int minimax(Tauler t, int profundidad, int alfa, int beta, boolean isMax) {
         
         if (profundidad <= 0) {
@@ -177,7 +245,10 @@ public class Tulanecta
             return nuevaBeta;
         }
     }
-
+    
+     /**
+     * Posible modificaciones futuras, lo dejo para el final
+     */
     private int largo (Tauler t, int i, int j, int direccionX, int direccionY, int color) {
         int size = t.getMida();
         int score = 0;
@@ -211,6 +282,16 @@ public class Tulanecta
         return score;
     }
     
+     /**
+     * Metodo que calcula la heurística de un tablero entero. Para calcular la heurística, 
+     * comprueva todas las fichas del tablero y le da prioridad aquellas fichas que esten
+     * juntas. 
+     * 
+     * @param t es el tablero que esta actualmente en la partida.
+     * 
+     * @return puntos que indica cual de buena es la jugada que se está planteando. 
+     * 
+     */
     private int heur(Tauler t) {
         int puntos = 0;
         for (int i = 0; i < t.getMida(); i++) {
@@ -246,7 +327,11 @@ public class Tulanecta
         return puntos;
     }
 
-    // private int 
+    /**
+     * Metodo que devuelve el nombre del jugador.
+     * 
+     * @return nom que representa el nombre del jugador
+     */
     public String nom() {
         return nom;
     }
