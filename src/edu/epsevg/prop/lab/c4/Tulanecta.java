@@ -179,11 +179,11 @@ public class Tulanecta
                         mejorJugada = i;
                         mejorHeur = alfa;
                     }
-                    System.out.println("Columna " + i + " mejor heuristica " + alfa);
                 }
             }
+            // System.out.println("Columna " + i + "heur i: " + mejorHeur);
         }
-        System.out.println("");
+        // System.out.println("mejorHeur todos: " + mejorHeur + "\n");
         return mejorJugada;
     }
     
@@ -203,7 +203,7 @@ public class Tulanecta
      */
     protected int minimax(Tauler t, int profundidad, int alfa, int beta, boolean isMax) {
         
-        if (profundidad < 0) {
+        if (profundidad <= 0) {
             return heur(t);
         }
 
@@ -269,14 +269,14 @@ public class Tulanecta
             }
             int colorPos = t.getColor(i, j);
             if (colorPos == 0) {
-                score += 2;
+                score += 3;
             }
             else {
-                if (colorPos != color) {
-                    score--;
+                if (colorPos == color) {
+                    score += 2;                    
                 }
                 else {
-                    score++;
+                    score -= 1;
                 }
             }
         }
