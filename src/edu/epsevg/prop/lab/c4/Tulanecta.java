@@ -35,11 +35,6 @@ public class Tulanecta
         direcciones.add(new int[] { 0, 1 });
         direcciones.add(new int[] { -1, 1 });
         direcciones.add(new int[] { -1, 0 });
-        
-        // direcciones.add(new int[] { 0, -1 });
-        // direcciones.add(new int[] { -1, 0 });
-        // direcciones.add(new int[] { -1, -1 });
-        // direcciones.add(new int[] { 1, -1 });
     }
 
     /**
@@ -166,7 +161,8 @@ public class Tulanecta
     protected int obtenerCol(Tauler t, int auxProfundidad) {
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
-        for (int i = 0; i < t.getMida(); i++) {
+        for (int i = t.getMida()-1; i >= 0; i--) {
+            int alfa = Integer.MIN_VALUE;
             if (t.movpossible(i)) {
                 Tauler aux = new Tauler(t);
                 aux.afegeix(i, this.color);
@@ -174,16 +170,16 @@ public class Tulanecta
                     return i;
                 }
                 else {
-                    int alfa = minimax(aux, auxProfundidad - 1, mejorHeur, Integer.MAX_VALUE , false);
+                    alfa = minimax(aux, auxProfundidad - 1, mejorHeur, Integer.MAX_VALUE , false);
                     if (alfa > mejorHeur || mejorJugada == -1) {
                         mejorJugada = i;
                         mejorHeur = alfa;
                     }
                 }
             }
-            // System.out.println("Columna " + i + "heur i: " + mejorHeur);
+            System.out.println("Columna " + i + " heur: " + alfa);
         }
-        // System.out.println("mejorHeur todos: " + mejorHeur + "\n");
+        System.out.println("Jugada elegida: " + mejorJugada + "\n");
         return mejorJugada;
     }
     
@@ -203,7 +199,7 @@ public class Tulanecta
      */
     protected int minimax(Tauler t, int profundidad, int alfa, int beta, boolean isMax) {
         
-        if (profundidad <= 0) {
+        if (profundidad <= 1) {
             return heur(t);
         }
 
@@ -273,10 +269,10 @@ public class Tulanecta
             }
             else {
                 if (colorPos == color) {
-                    score += 2;                    
+                    score += 5;                    
                 }
                 else {
-                    score -= 1;
+                    score -= 3;
                 }
             }
         }
@@ -317,7 +313,7 @@ public class Tulanecta
                 }
             }
         }
-        return puntosYo - puntosEnemigo;
+        return this.color == color ? puntosYo - puntosEnemigo : puntosEnemigo - puntosYo;
     }
 
     /**
