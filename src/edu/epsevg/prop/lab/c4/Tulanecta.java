@@ -245,14 +245,18 @@ public class Tulanecta
     }
     
     /**
-     * * Posible modificaciones futuras, lo dejo para el final
+     * Este métode devuelve el valor de una casilla para una dirección en el tablero. La dirección 
+     * siempre es hacía los lados o hacia arriba, y se mueve hasta 4 posiciones (al menos que se encuentre
+     * con algun borde). El valor se calcula teniendo en cuenta el numero de casillas en blanco y ocupadas por 
+     * algun color.
+     * 
      * @param t
      * @param i
      * @param j
      * @param direccionX
      * @param direccionY
      * @param color
-     * @return 
+     * @return score representa el valor de la puntuación de una casilla para sus direcciones
      */
     protected int largo (Tauler t, int i, int j, int direccionX, int direccionY, int color) {
         int size = t.getMida();
