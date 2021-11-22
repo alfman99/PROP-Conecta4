@@ -34,11 +34,12 @@ public class Tulanecta
         direcciones.add(new int[] { 1, 1 });
         direcciones.add(new int[] { 0, 1 });
         direcciones.add(new int[] { -1, 1 });
-        
         direcciones.add(new int[] { -1, 0 });
-        direcciones.add(new int[] { -1, -1 });
-        direcciones.add(new int[] { 0, -1 });
-        direcciones.add(new int[] { 1, -1 });
+        
+        // direcciones.add(new int[] { 0, -1 });
+        // direcciones.add(new int[] { -1, 0 });
+        // direcciones.add(new int[] { -1, -1 });
+        // direcciones.add(new int[] { 1, -1 });
     }
 
     /**
@@ -170,7 +171,7 @@ public class Tulanecta
                 Tauler aux = new Tauler(t);
                 aux.afegeix(i, this.color);
                 if (aux.solucio(i, this.color)) {
-                    return Integer.MAX_VALUE;
+                    return i;
                 }
                 else {
                     int alfa = minimax(aux, auxProfundidad - 1, mejorHeur, Integer.MAX_VALUE , false);
@@ -178,10 +179,11 @@ public class Tulanecta
                         mejorJugada = i;
                         mejorHeur = alfa;
                     }
+                    System.out.println("Columna " + i + " mejor heuristica " + alfa);
                 }
-                
             }
         }
+        System.out.println("");
         return mejorJugada;
     }
     
@@ -201,7 +203,7 @@ public class Tulanecta
      */
     protected int minimax(Tauler t, int profundidad, int alfa, int beta, boolean isMax) {
         
-        if (profundidad <= 0) {
+        if (profundidad < 0) {
             return heur(t);
         }
 
@@ -246,8 +248,15 @@ public class Tulanecta
         }
     }
     
-     /**
-     * Posible modificaciones futuras, lo dejo para el final
+    /**
+     * * Posible modificaciones futuras, lo dejo para el final
+     * @param t
+     * @param i
+     * @param j
+     * @param direccionX
+     * @param direccionY
+     * @param color
+     * @return 
      */
     protected int largo (Tauler t, int i, int j, int direccionX, int direccionY, int color) {
         int size = t.getMida();
@@ -256,29 +265,21 @@ public class Tulanecta
             i += direccionX;
             j += direccionY;
             if (i < 0 || i >= size || j < 0 || j >= size) {
-                return -4;
+                break;
             }
             int colorPos = t.getColor(i, j);
-            if (color == colorPos) {
+            if (colorPos == 0) {
                 score += 2;
             }
-            else if (color != colorPos && colorPos != 0) {
-                return -8;
+            else {
+                if (colorPos != color) {
+                    score--;
+                }
+                else {
+                    score++;
+                }
             }
         }
-        /*if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
-            return -4;
-        }
-        if (t.getColor(i+direccionX, j+direccionY) == color || t.getColor(i+direccionX, j+direccionY) == 0) {
-            int sum = 1;
-            if (t.getColor(i+direccionX, j+direccionY) == 0) {
-                sum = 0;
-            }
-            return sum + largo(t, newX, newY, direccionX, direccionY, color);
-        }
-        else {
-            return 0;
-        }*/
         return score;
     }
     
@@ -293,38 +294,30 @@ public class Tulanecta
      * 
      */
     protected int heur(Tauler t) {
-        int puntos = 0;
-        for (int i = 0; i < t.getMida(); i++) {
-            for (int j = 0; j < t.getMida(); j++) {
+        int puntosYo = 0;
+        int puntosEnemigo = 0;
+        int size = t.getMida();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 if (t.getColor(i, j) == this.color) {
                     for (int[] direc : direcciones) {
                         int dirX = direc[0];
                         int dirY = direc[1];
-                        int a = largo(t, i, j, dirX, dirY, this.color);
-                        if (a >= 4)
-                            puntos = Integer.MAX_VALUE;
-                        else if (a > 1)
-                            puntos += a*2;
-                        else
-                            puntos += a;
+                        int puntos = largo(t, i, j, dirX, dirY, this.color);
+                        puntosYo += puntos;
                     }
                 }
                 else if (t.getColor(i, j) == this.color*-1) {
                     for (int[] direc : direcciones) {
                         int dirX = direc[0];
                         int dirY = direc[1];
-                        int a = largo(t, i, j, dirX, dirY, this.color * -1);
-                        if (a >= 4)
-                            puntos = Integer.MIN_VALUE;
-                        else if (a > 1)
-                            puntos -= a*2;
-                        else
-                            puntos -= a*2;
+                        int puntos = largo(t, i, j, dirX, dirY, this.color * -1);
+                        puntosEnemigo += puntos;
                     }
                 }
             }
         }
-        return puntos;
+        return puntosYo - puntosEnemigo;
     }
 
     /**
