@@ -36,10 +36,10 @@ public class Tulanecta
         this.direcciones = new ArrayList<>();
         this.alfabeta = alfabeta;
         this.csvOutput = false;
+        this.nodosExplorados = 0;
+        this.numJugada = 0;
         
         if (this.csvOutput) {
-            this.nodosExplorados = 0;
-            this.numJugada = 0;
             System.out.println("tirada;numheur");
         }
 
@@ -97,7 +97,7 @@ public class Tulanecta
         this.nodosExplorados = 0;
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
-        for (int i = t.getMida()-1; i >= 0; i--) {
+        for (int i = 0; i < t.getMida(); i++) {
             int heur = Integer.MIN_VALUE;
             if (t.movpossible(i)) {
                 Tauler aux = new Tauler(t);
@@ -113,11 +113,15 @@ public class Tulanecta
                     }
                 }
             }
-            // System.out.println("Columna " + i + " heur: " + heur);
+            if (!this.csvOutput) {
+                System.out.println("Columna " + i + " heur: " + heur);
+            }
         }
-        // System.out.println("Jugada elegida: " + mejorJugada + "\n" + "Cantidad de veces calculada la funcion heursitica: " + this.nodosExplorados);
         if (this.csvOutput) {
             System.out.println(this.numJugada + ";" + this.nodosExplorados);
+        }
+        else {
+            System.out.println("Jugada elegida: " + mejorJugada + "\n" + "Cantidad de veces calculada la funcion heursitica: " + this.nodosExplorados);
         }
         return mejorJugada;
     }
@@ -136,7 +140,7 @@ public class Tulanecta
      */
     protected int minimaxSinAlfaBeta(Tauler t, int profundidad, boolean isMax) {
                 
-        if (profundidad <= 1) {
+        if (profundidad <= 0) {
             return heur(t);
         }
 
@@ -189,7 +193,7 @@ public class Tulanecta
         this.nodosExplorados = 0;
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
-        for (int i = t.getMida()-1; i >= 0; i--) {
+        for (int i = 0; i < t.getMida(); i++) {
             int alfa = Integer.MIN_VALUE;
             if (t.movpossible(i)) {
                 Tauler aux = new Tauler(t);
@@ -205,11 +209,15 @@ public class Tulanecta
                     }
                 }
             }
-            // System.out.println("Columna " + i + " heur: " + alfa);
+            if (!this.csvOutput) {
+                System.out.println("Columna " + i + " heur: " + alfa);
+            }
         }
-        // System.out.println("Jugada elegida: " + mejorJugada + "\n" + "Cantidad de veces calculada la funcion heursitica: " + this.nodosExplorados);
         if (this.csvOutput) {
             System.out.println(this.numJugada + ";" + this.nodosExplorados);
+        }
+        else {
+            System.out.println("Jugada elegida: " + mejorJugada + "\n" + "Cantidad de veces calculada la funcion heursitica: " + this.nodosExplorados);
         }
         return mejorJugada;
     }
@@ -230,7 +238,7 @@ public class Tulanecta
      */
     protected int minimax(Tauler t, int profundidad, int alfa, int beta, boolean isMax) {
         
-        if (profundidad <= 1) {
+        if (profundidad <= 0) {
             return heur(t);
         }
 
@@ -286,7 +294,6 @@ public class Tulanecta
      * @param j
      * @param direccionX
      * @param direccionY
-     * @param color
      * @return score representa el valor de la puntuación de una casilla para sus direcciones
      */
     protected int largo (Tauler t, int i, int j, int direccionX, int direccionY, int color) {
@@ -304,10 +311,10 @@ public class Tulanecta
             }
             else {
                 if (colorPos == color) {
-                    score += 5;                    
+                    score += 2;                    
                 }
                 else {
-                    score -= 3;
+                    score -= 1;
                 }
             }
         }
@@ -345,13 +352,13 @@ public class Tulanecta
                     for (int[] direc : direcciones) {
                         int dirX = direc[0];
                         int dirY = direc[1];
-                        int puntos = largo(t, i, j, dirX, dirY, this.color * -1);
+                        int puntos = largo(t, i, j, dirX, dirY, this.color*-1);
                         puntosEnemigo += puntos;
                     }
                 }
             }
         }
-        return this.color == color ? puntosYo - puntosEnemigo : puntosEnemigo - puntosYo;
+        return puntosYo - puntosEnemigo;
     }
 
     /**
