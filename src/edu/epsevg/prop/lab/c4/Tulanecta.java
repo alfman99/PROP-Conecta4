@@ -1,8 +1,6 @@
 package edu.epsevg.prop.lab.c4;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Tulanecta. Actividad de PROP
@@ -16,19 +14,34 @@ public class Tulanecta
     private final String nom;
     private int color;
     private final int profundidad;
-    private int[] alturas;
-    private ArrayList<int[]> direcciones;
+    private final ArrayList<int[]> direcciones;
+    
+    private final boolean alfabeta;
+    private int numJugada;
+    
+    private int nodosExplorados;
+    
+    private final boolean csvOutput;
 
     /**
-     * Metodo de inicialización del jugador "Tulanecta", donde se incializan 
+     * Metodo de constructor del jugador "Tulanecta", donde se incializan 
      * las variables principales para el funcionamiento de este. 
      * 
      * @param profundidad se le pasa la profundidad máxima a la que se jugará
+     * @param alfabeta indica si debemos utilizar la poda alfa-beta o no
      */
-    public Tulanecta(int profundidad) {
+    public Tulanecta(int profundidad, boolean alfabeta) {
         this.nom = "Tulanecta";
         this.profundidad = profundidad;
         this.direcciones = new ArrayList<>();
+        this.alfabeta = alfabeta;
+        this.csvOutput = false;
+        
+        if (this.csvOutput) {
+            this.nodosExplorados = 0;
+            this.numJugada = 0;
+            System.out.println("tirada;numheur");
+        }
 
         direcciones.add(new int[] { 1, 0 });
         direcciones.add(new int[] { 1, 1 });
@@ -38,32 +51,41 @@ public class Tulanecta
     }
 
     /**
-     * Metodo que se inicializa cada vez que nos toca elegir el movimiento. Este metodo
-     * llama a la función minimax para así obtener el mejor movimiento.
+     * Metodo que se inicializa cada vez que nos toca elegir el movimiento. 
+     * Este metodo llama a la función obternerCol para así obtener el mejor movimiento.
+     * Según el numero de pasos y la evalucación de la heuristica del tablero
      * 
      * @param t es el tablero que esta actualmente en la partida.
      * @param color es el color con el que jugamos.
      * @return eleccion que es la eleccion que nos queda después de hacer el minimax con el heur.
      * 
      * @see obtenerCol(Tauler t, int auxProfundidad)
+     * @see obtenerColSinAlfaBeta(Tauler t, int auxProfundidad)
      */
     @Override
     public int moviment(Tauler t, int color) {
         this.color = color;
         int depth = profundidad;
-        int eleccion = obtenerCol(t, depth);
-        try {
-            Thread.sleep((long)1000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Tulanecta.class.getName()).log(Level.SEVERE, null, ex);
+        
+        this.numJugada++;
+        
+        int eleccion;
+        if (this.alfabeta) {
+            eleccion = obtenerCol(t, depth);
         }
+        else {
+            eleccion = obtenerColSinAlfaBeta(t, depth);
+        }
+        
         return eleccion;
     }
     
-     /**
-     * Metodo que realiza todas las primeras tiradas del tablero T. Apartir de 
-     * estas tiradas llamamos al minimax para ver las jugadas con el Min. 
-     * Este Metodo funciona sin el alfa y el beta. 
+    
+    /**
+     * Metodo que realiza todas las primeras tiradas del tablero T.
+     * Primera capa del minimax.
+     * Apartir de estas tiradas llamamos al minimax para ver las jugadas con el Minimax
+     * Este Metodo funciona sin la poda alfa-beta. 
      * 
      * @param t es el tablero que esta actualmente en la partida.
      * @param auxProfundidad es la profundidad a la que estamos jugando.
@@ -72,30 +94,38 @@ public class Tulanecta
      * @see minimaxSinAlfaBeta(Tauler t, int profundidad, boolean isMax)
      */
     protected int obtenerColSinAlfaBeta(Tauler t, int auxProfundidad) {
+        this.nodosExplorados = 0;
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
-        for (int i = 0; i < t.getMida(); i++) {
+        for (int i = t.getMida()-1; i >= 0; i--) {
+            int heur = Integer.MIN_VALUE;
             if (t.movpossible(i)) {
                 Tauler aux = new Tauler(t);
                 aux.afegeix(i, this.color);
                 if (aux.solucio(i, this.color)) {
-                    return Integer.MAX_VALUE;
+                    return i;
                 }
-                else{
-                    int eval = minimaxSinAlfaBeta(aux, auxProfundidad - 1, false);
-                    if (eval > mejorHeur || mejorJugada == -1) {
+                else {
+                    heur = minimaxSinAlfaBeta(aux, auxProfundidad - 1, false);
+                    if (heur > mejorHeur || mejorJugada == -1) {
                         mejorJugada = i;
-                        mejorHeur = eval;
+                        mejorHeur = heur;
                     }
                 }
             }
+            // System.out.println("Columna " + i + " heur: " + heur);
+        }
+        // System.out.println("Jugada elegida: " + mejorJugada + "\n" + "Cantidad de veces calculada la funcion heursitica: " + this.nodosExplorados);
+        if (this.csvOutput) {
+            System.out.println(this.numJugada + ";" + this.nodosExplorados);
         }
         return mejorJugada;
     }
 
+    
     /**
-     * Metodo que realiza el desarrollo del árbol heurístico MiniMax de forma 
-     * recursivas. Comprueva el valor máximo si isMax es verdadero y en caso
+     * Metodo que realiza el desarrollo del árbol MiniMax de forma recursiva.
+     * Comprueva el valor máximo si isMax es verdadero y en caso
      * contrario mira el valor mínimo.
      * 
      * @param t es el tablero que esta actualmente en la partida.
@@ -105,52 +135,49 @@ public class Tulanecta
      * 
      */
     protected int minimaxSinAlfaBeta(Tauler t, int profundidad, boolean isMax) {
-        int otherColor = this.color == 1 ? -1 : 1;
-        int auxColor = isMax ? this.color : otherColor;
-
-        if (profundidad <= 0) {
+                
+        if (profundidad <= 1) {
             return heur(t);
         }
 
-        int heur;
         if (isMax) {
-            heur = Integer.MIN_VALUE;
+            int maxHeur = Integer.MIN_VALUE;
             for (int i = 0; i < t.getMida(); i++) {
                 if (t.movpossible(i)) {
                     Tauler aux = new Tauler(t);
-                    aux.afegeix(i, auxColor);
-                    if (aux.solucio(i, auxColor)) {
-                        heur = Integer.MAX_VALUE;
+                    aux.afegeix(i, this.color);
+                    if (aux.solucio(i, this.color)) {
+                        return Integer.MAX_VALUE;
                     }
-                    else{
-                        int eval = minimaxSinAlfaBeta(aux, profundidad - 1, false);
-                        heur = Math.max(eval, heur);
-                    }  
+                    else {
+                        maxHeur = Math.max(maxHeur, minimaxSinAlfaBeta(aux, profundidad - 1, false));
+                    }
                 }
             }
+            return maxHeur;
         } else {
-            heur = Integer.MAX_VALUE;
+            int minHeur = Integer.MAX_VALUE;
             for (int i = 0; i < t.getMida(); i++) {
                 if (t.movpossible(i)) {
                     Tauler aux = new Tauler(t);
-                    aux.afegeix(i, auxColor);
-                    if (aux.solucio(i, auxColor)) {
-                        heur = Integer.MIN_VALUE;
+                    aux.afegeix(i, this.color*-1);
+                    if (aux.solucio(i, this.color*-1)) {
+                        return Integer.MIN_VALUE;
                     }
-                    else{
-                        int eval = minimaxSinAlfaBeta(aux, profundidad - 1, true);
-                        heur = Math.min(eval, heur);
+                    else {
+                        minHeur = Math.min(minHeur, minimaxSinAlfaBeta(aux, profundidad - 1, true));
                     }
                 }
             }
+            return minHeur;
         }
-
-        return heur;
     }
+    
+    
     /**
      * Metodo que realiza todas las primeras tiradas del tablero T. Apartir de 
      * estas tiradas llamamos al minimax para ver las jugadas con el Min. 
-     * Este Metodo funciona es con el alfa y el beta. 
+     * Este Metodo funciona con la poda alfa-beta. 
      * 
      * @param t es el tablero que esta actualmente en la partida
      * @param auxProfundidad es la profundidad a la que estamos jugando 
@@ -159,6 +186,7 @@ public class Tulanecta
      * @see obtenerCol(Tauler t, int auxProfundidad)
      */
     protected int obtenerCol(Tauler t, int auxProfundidad) {
+        this.nodosExplorados = 0;
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
         for (int i = t.getMida()-1; i >= 0; i--) {
@@ -177,9 +205,12 @@ public class Tulanecta
                     }
                 }
             }
-            System.out.println("Columna " + i + " heur: " + alfa);
+            // System.out.println("Columna " + i + " heur: " + alfa);
         }
-        System.out.println("Jugada elegida: " + mejorJugada + "\n");
+        // System.out.println("Jugada elegida: " + mejorJugada + "\n" + "Cantidad de veces calculada la funcion heursitica: " + this.nodosExplorados);
+        if (this.csvOutput) {
+            System.out.println(this.numJugada + ";" + this.nodosExplorados);
+        }
         return mejorJugada;
     }
     
@@ -294,6 +325,9 @@ public class Tulanecta
      * 
      */
     protected int heur(Tauler t) {
+        
+        this.nodosExplorados++;
+        
         int puntosYo = 0;
         int puntosEnemigo = 0;
         int size = t.getMida();
