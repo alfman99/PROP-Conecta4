@@ -251,7 +251,7 @@ public class Tulanecta
      * @param auxProfundidad es la profundidad a la que estamos jugando 
      * @return mejorJugada que es la mejor columna para tirar la ficha
      * 
-     * @see obtenerCol(Tauler t, int auxProfundidad)
+     * @see minimax(Tauler t, int profundidad, int alfa, int beta, boolean isMax)
      */
     protected int obtenerCol(Tauler t, int auxProfundidad) {
         this.llamadasHeur = 0;
@@ -395,6 +395,7 @@ public class Tulanecta
      * 
      * @return puntos que indica cual de buena es la jugada que se está planteando. 
      * 
+     * @see largo(Tauler t, int i, int j, int direccionX, int direccionY, int color) 
      */
     protected int heur(Tauler t) {
         
