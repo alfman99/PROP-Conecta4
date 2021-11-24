@@ -7,8 +7,6 @@ package edu.epsevg.prop.lab.c4;
 
 /**
  * @author joan on 24/4/17.
- * @project Connecta4
- * @package src
  */
 public class Player implements Jugador, IAuto {
     private class Resultat {

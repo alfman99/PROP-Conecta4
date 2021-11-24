@@ -50,8 +50,8 @@ public class Tulanecta
     
     /**
      * Output del tipo csv para poder hacer las graficas mas facilmente
-     * true -> output csv (numJugada;numVecesHeur)
-     * false -> output bonito (Todos los posibles movimientos con su valor heursitico, tiempo que ha tardado en calcular ese movimento, tiempo total que lleva el bot calculando)
+     * true = output csv (numJugada;numVecesHeur)
+     * false = output bonito (Todos los posibles movimientos con su valor heursitico, tiempo que ha tardado en calcular ese movimento, tiempo total que lleva el bot calculando)
      */
     protected final boolean csvOutput;
     
@@ -353,11 +353,12 @@ public class Tulanecta
      * con algun borde). El valor se calcula teniendo en cuenta el numero de casillas en blanco y ocupadas por 
      * algun color.
      * 
-     * @param t
-     * @param i
-     * @param j
-     * @param direccionX
-     * @param direccionY
+     * @param t tablero
+     * @param i posicion i desde donde se miran las casillas
+     * @param j posicion j desde donde se miran las casillas
+     * @param direccionX direccion en eje X (i) (1, -1, 0)
+     * @param direccionY direccion en eje Y (j) (1, -1, 0)
+     * @param color del jugador para el que está evaluando las lineas
      * @return score representa el valor de la puntuación de una casilla para sus direcciones
      */
     protected int largo (Tauler t, int i, int j, int direccionX, int direccionY, int color) {
