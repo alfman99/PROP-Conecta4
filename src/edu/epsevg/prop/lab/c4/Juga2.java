@@ -104,16 +104,6 @@ public class Juga2 extends javax.swing.JFrame {
         // Jugador p2 = new Aleatori();
         // Jugador p2 = new Manual();
         
-        // p1 8 false win
-        // p1 4 false win
-        // p2 8 false win
-        // p2 4 false win
-        
-        // p1 8 true lose
-        // p1 4 true win
-        // p2 8 true win
-        // p2 4 true taules
-
 
         boolean autoMode = true;
         final Juga2 j = new Juga2(p1, p2, autoMode);

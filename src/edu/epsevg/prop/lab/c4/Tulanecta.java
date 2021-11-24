@@ -4,6 +4,18 @@ import java.util.ArrayList;
 
 /**
  * Tulanecta. Actividad de PROP
+ * 
+ * Win ratio (inicio/profundidad/modoEnemigo/veredicto)
+ * 
+ * p1 8 false win
+ * p1 4 false win
+ * p2 8 false win
+ * p2 4 false win
+ * 
+ * p1 8 true lose
+ * p1 4 true win
+ * p2 8 true win
+ * p2 4 true taules
  *
  * @author Mario Konstanty Kochan Chmielik
  * @author Alfredo Manresa Martínez
@@ -11,20 +23,59 @@ import java.util.ArrayList;
 public class Tulanecta
         implements Jugador, IAuto {
 
-    private final String nom;
-    private int color;
-    private final int profundidad;
-    private final ArrayList<int[]> direcciones;
+    /**
+     * Nombre de nuestro robot
+     */
+    protected final String nom;
     
-    private final boolean alfabeta;
-    private int numJugada;
+    /**
+     * Color que nos ha tocado en la partida, 1 o -1
+     */
+    protected int color;
     
-    private int nodosExplorados;
+    /**
+     * Profundidad a la que el minimax tendrá que explorar
+     */
+    protected final int profundidad;
     
-    private final boolean csvOutput;
+    /**
+     * Lista de direcciones en las que la heuristica tiene que explorar
+     */
+    protected final ArrayList<int[]> direcciones;
     
-    private long timeTurn;
-    private long timeTotal;
+    /**
+     * Indica si queremos o no utilizar la poda alfa-beta
+     */
+    protected final boolean alfabeta;
+    
+    /**
+     * Output del tipo csv para poder hacer las graficas mas facilmente
+     * true -> output csv (numJugada;numVecesHeur)
+     * false -> output bonito (Todos los posibles movimientos con su valor heursitico, tiempo que ha tardado en calcular ese movimento, tiempo total que lleva el bot calculando)
+     */
+    protected final boolean csvOutput;
+    
+    /**
+     * El numero del movimiento que hemos hecho
+     * Se utilizar para el output en csv para 
+     * hacer la grafica
+     */
+    protected int numJugada;
+    
+    /**
+     * Cantidad de veces que se llama a la heuristica (se resetea cada nuevo movimiento)
+     */
+    protected int llamadasHeur;
+    
+    /**
+     * Tiempo de calculo del movimiento actual
+     */
+    protected long timeTurn;
+    
+    /**
+     * Tiempo de calculo total
+     */
+    protected long timeTotal;
     
 
     /**
@@ -40,7 +91,7 @@ public class Tulanecta
         this.direcciones = new ArrayList<>();
         this.alfabeta = alfabeta;
         this.csvOutput = false;
-        this.nodosExplorados = 0;
+        this.llamadasHeur = 0;
         this.numJugada = 0;
         
         if (this.csvOutput) {
@@ -107,7 +158,7 @@ public class Tulanecta
      * @see minimaxSinAlfaBeta(Tauler t, int profundidad, boolean isMax)
      */
     protected int obtenerColSinAlfaBeta(Tauler t, int auxProfundidad) {
-        this.nodosExplorados = 0;
+        this.llamadasHeur = 0;
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
         for (int i = 0; i < t.getMida(); i++) {
@@ -131,10 +182,10 @@ public class Tulanecta
             }
         }
         if (this.csvOutput) {
-            System.out.println(this.numJugada + ";" + this.nodosExplorados);
+            System.out.println(this.numJugada + ";" + this.llamadasHeur);
         }
         else {
-            System.out.println("Jugada elegida: " + mejorJugada + "\n" + "Cantidad de veces calculada la funcion heursitica: " + this.nodosExplorados);
+            System.out.println("Jugada elegida: " + mejorJugada + "\n" + "Cantidad de veces calculada la funcion heursitica: " + this.llamadasHeur);
         }
         return mejorJugada;
     }
@@ -203,7 +254,7 @@ public class Tulanecta
      * @see obtenerCol(Tauler t, int auxProfundidad)
      */
     protected int obtenerCol(Tauler t, int auxProfundidad) {
-        this.nodosExplorados = 0;
+        this.llamadasHeur = 0;
         int mejorHeur = Integer.MIN_VALUE;
         int mejorJugada = -1;
         for (int i = 0; i < t.getMida(); i++) {
@@ -227,10 +278,10 @@ public class Tulanecta
             }
         }
         if (this.csvOutput) {
-            System.out.println(this.numJugada + ";" + this.nodosExplorados);
+            System.out.println(this.numJugada + ";" + this.llamadasHeur);
         }
         else {
-            System.out.println("Jugada elegida: " + mejorJugada + "\n" + "Cantidad de veces calculada la funcion heursitica: " + this.nodosExplorados);
+            System.out.println("Jugada elegida: " + mejorJugada + "\n" + "Cantidad de veces calculada la funcion heursitica: " + this.llamadasHeur);
         }
         return mejorJugada;
     }
@@ -346,7 +397,7 @@ public class Tulanecta
      */
     protected int heur(Tauler t) {
         
-        this.nodosExplorados++;
+        this.llamadasHeur++;
         
         int puntosYo = 0;
         int puntosEnemigo = 0;
