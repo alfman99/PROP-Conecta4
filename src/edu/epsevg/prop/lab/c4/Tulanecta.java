@@ -22,6 +22,10 @@ public class Tulanecta
     private int nodosExplorados;
     
     private final boolean csvOutput;
+    
+    private long timeTurn;
+    private long timeTotal;
+    
 
     /**
      * Metodo de constructor del jugador "Tulanecta", donde se incializan 
@@ -64,6 +68,9 @@ public class Tulanecta
      */
     @Override
     public int moviment(Tauler t, int color) {
+        
+        this.timeTurn = System.nanoTime();
+        
         this.color = color;
         int depth = profundidad;
         
@@ -75,6 +82,12 @@ public class Tulanecta
         }
         else {
             eleccion = obtenerColSinAlfaBeta(t, depth);
+        }
+        
+        this.timeTurn = System.nanoTime() - this.timeTurn;
+        this.timeTotal += this.timeTurn;
+        if (!this.csvOutput) {
+            System.out.println("Tiempo calculando en este movimiento: " + (this.timeTurn / 1000000) + "ms\nTiempo total calculando: " + (timeTotal/ 1000000) + "ms\n");
         }
         
         return eleccion;
